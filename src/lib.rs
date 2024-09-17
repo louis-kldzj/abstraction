@@ -2,9 +2,9 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Attribute, Data, DeriveInput, Fields, Meta, Path};
+use syn::{parse_macro_input, Attribute, Data, DeriveInput, Fields, Path};
 
-#[proc_macro_derive(Concrete, attributes(abstract_trait, concrete_struct))]
+#[proc_macro_derive(Concrete, attributes(concrete_trait, data_struct))]
 pub fn derive_concrete(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
@@ -15,9 +15,16 @@ pub fn derive_concrete(input: TokenStream) -> TokenStream {
         Err(token_stream) => return token_stream,
     };
 
+    let data_name = match get_trait_name(&input.attrs, "data_struct") {
+        Ok(data_name) => data_name,
+        Err(token_stream) => return token_stream,
+    };
+
     // Generate the implementation
     match &input.data {
-        Data::Struct(data_struct) => impl_concrete_trait(&input.ident, data_struct, &trait_name),
+        Data::Struct(data_struct) => {
+            impl_concrete_trait(&input.ident, data_struct, &trait_name, &data_name)
+        }
         _ => TokenStream::from(quote! {
             compile_error!("Concrete can only be derived for structs");
         }),
@@ -28,6 +35,7 @@ fn impl_concrete_trait(
     struct_name: &syn::Ident,
     data_struct: &syn::DataStruct,
     trait_name: &Path,
+    data_name: &Path,
 ) -> TokenStream {
     // Ensure the struct has named fields
     let fields = if let Fields::Named(fields_named) = &data_struct.fields {
@@ -41,7 +49,8 @@ fn impl_concrete_trait(
     // Find the field of type DisplayData
     let display_data_field = fields.iter().find(|f| {
         if let syn::Type::Path(type_path) = &f.ty {
-            type_path.path.segments.last().unwrap().ident == "DisplayData"
+            type_path.path.segments.last().unwrap().ident
+                == data_name.segments.last().unwrap().ident
         } else {
             false
         }
@@ -58,7 +67,7 @@ fn impl_concrete_trait(
 
     let expanded = quote! {
         impl #trait_name for #struct_name {
-            fn data(&self) -> &DisplayData {
+            fn data(&self) -> &#data_name {
                 &self.#field_name
             }
         }
@@ -67,7 +76,7 @@ fn impl_concrete_trait(
     TokenStream::from(expanded)
 }
 
-#[proc_macro_derive(Abstract, attributes(abstract_trait))]
+#[proc_macro_derive(Abstract, attributes(abstract_trait, data_struct))]
 pub fn derive_abstract(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);
@@ -77,10 +86,15 @@ pub fn derive_abstract(input: TokenStream) -> TokenStream {
         Ok(trait_name) => trait_name,
         Err(token_stream) => return token_stream,
     };
-
+    let data_name = match get_trait_name(&input.attrs, "data_struct") {
+        Ok(data_name) => data_name,
+        Err(token_stream) => return token_stream,
+    };
     // Generate the implementation
     match &input.data {
-        Data::Enum(data_enum) => impl_abstract_trait(&input.ident, data_enum, &trait_name),
+        Data::Enum(data_enum) => {
+            impl_abstract_trait(&input.ident, data_enum, &trait_name, &data_name)
+        }
         _ => TokenStream::from(quote! {
             compile_error!("Abstract can only be derived for enums");
         }),
@@ -91,6 +105,7 @@ fn impl_abstract_trait(
     enum_name: &syn::Ident,
     data_enum: &syn::DataEnum,
     trait_name: &Path,
+    data_name: &Path,
 ) -> TokenStream {
     let variants = data_enum.variants.iter().map(|variant| {
         let variant_name = &variant.ident;
@@ -111,7 +126,7 @@ fn impl_abstract_trait(
 
     let expanded = quote! {
         impl #trait_name for #enum_name {
-            fn data(&self) -> &DisplayData {
+            fn data(&self) -> &#data_name {
                 match self {
                     #(#variants)*
                 }

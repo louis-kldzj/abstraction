@@ -1,21 +1,15 @@
+use abstraction::Concrete;
+
 use crate::model::{
     display::{DisplayData, DisplayInfo},
     identifier::{Identifier, Identity},
 };
 
+#[derive(Concrete)]
+#[concrete_traits(Identifier, DisplayInfo)]
 pub struct Planet {
+    #[data_field(Identifier)]
     identity: Identity,
+    #[data_field(DisplayInfo)]
     display_data: DisplayData,
-}
-
-impl Identifier for Planet {
-    fn instance(&self) -> &dyn Identifier {
-        &self.identity
-    }
-}
-
-impl DisplayInfo for Planet {
-    fn instance(&self) -> &dyn DisplayInfo {
-        &self.display_data
-    }
 }

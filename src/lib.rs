@@ -4,7 +4,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Attribute, Data, DeriveInput, Fields, Meta, Path};
 
-#[proc_macro_derive(Concrete, attributes(concrete_trait))]
+#[proc_macro_derive(Concrete, attributes(abstract_trait, concrete_struct))]
 pub fn derive_concrete(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
     let input = parse_macro_input!(input as DeriveInput);

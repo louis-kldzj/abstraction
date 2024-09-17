@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{parse_macro_input, Attribute, Fields, ItemEnum, Path};
+use syn::{parse_macro_input, Fields, ItemEnum, Path};
 
-pub fn impl_abstraction(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub(super) fn impl_abstraction(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let trait_path = parse_macro_input!(_attr as Path);
 
     let input = parse_macro_input!(item as ItemEnum);
@@ -55,23 +55,4 @@ pub fn impl_abstraction(_attr: TokenStream, item: TokenStream) -> TokenStream {
     eprintln!("Result: {:#?}", &expanded.to_string());
 
     TokenStream::from(expanded)
-}
-
-fn get_trait_name(attrs: &[Attribute], attr_name: &str) -> Result<Path, TokenStream> {
-    let mut path = Err(TokenStream::from(quote! {
-        compile_error!("Attribute {} not found", stringify!(#attr_name));
-    }));
-    for attr in attrs {
-        if attr.path().is_ident(attr_name) {
-            match attr.parse_nested_meta(|m| {
-                path = Ok(m.path.clone());
-                return Ok(());
-            }) {
-                Ok(_) => {}
-                Err(_) => {}
-            }
-        }
-    }
-
-    path
 }

@@ -1,5 +1,5 @@
 [workspace]
 
 members = [
-    "abstraction",
+    "abstraction", "test-model",
 ]

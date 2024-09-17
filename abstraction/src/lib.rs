@@ -4,6 +4,15 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Attribute, Data, DeriveInput, Fields, Path};
 
+mod data;
+#[cfg(test)]
+mod test_model;
+
+#[proc_macro_attribute]
+pub fn abstraction(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    data::impl_abstraction(_attr, item)
+}
+
 #[proc_macro_derive(Concrete, attributes(concrete_trait, data_struct))]
 pub fn derive_concrete(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree
@@ -150,23 +159,6 @@ fn get_trait_name(attrs: &[Attribute], attr_name: &str) -> Result<Path, TokenStr
                 Ok(_) => {}
                 Err(_) => {}
             }
-            /*
-                Ok(Meta::List(meta_list)) => {
-                    if let Some(syn::NestedMeta::Meta(Meta::Path(path))) = meta_list.nested.first()
-                    {
-                        return Ok(path.clone());
-                    } else {
-                        return Err(TokenStream::from(quote! {
-                            compile_error!("Expected trait name in {}", stringify!(#attr_name));
-                        }));
-                    }
-                }
-                _ => {
-                    return Err(TokenStream::from(quote! {
-                        compile_error!("Malformed attribute {}", stringify!(#attr_name));
-                    }));
-                }
-            }*/
         }
     }
 

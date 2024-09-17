@@ -1,11 +1,5 @@
-[package]
-name = "abstraction"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-[lib]
-proc-macro = true
-
-[dependencies]
-quote = "1.0.37"
-syn = { version = "2.0.77", features = ["full"] }
+members = [
+    "abstraction",
+]

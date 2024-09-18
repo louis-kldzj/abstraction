@@ -1,9 +1,9 @@
 pub trait Identifier {
     fn get_id(&self) -> &str {
-        &self.instance().get_id()
+        &self.identifier_instance().get_id()
     }
 
-    fn instance(&self) -> &dyn Identifier;
+    fn identifier_instance(&self) -> &dyn Identifier;
 }
 
 pub struct Identity {
@@ -15,7 +15,7 @@ impl Identifier for Identity {
         &self.id
     }
 
-    fn instance(&self) -> &dyn Identifier {
+    fn identifier_instance(&self) -> &dyn Identifier {
         self
     }
 }

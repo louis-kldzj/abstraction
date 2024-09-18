@@ -9,13 +9,13 @@ pub struct Player {
 }
 
 impl Identifier for Player {
-    fn instance(&self) -> &dyn Identifier {
+    fn identifier_instance(&self) -> &dyn Identifier {
         &self.identity
     }
 }
 
 impl DisplayInfo for Player {
-    fn instance(&self) -> &dyn DisplayInfo {
+    fn displayinfo_instance(&self) -> &dyn DisplayInfo {
         &self.display_data
     }
 }

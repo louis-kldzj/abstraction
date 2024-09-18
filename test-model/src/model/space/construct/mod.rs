@@ -17,7 +17,7 @@ impl Identifier for Structure {
         &self.id
     }
 
-    fn instance(&self) -> &dyn Identifier {
+    fn identifier_instance(&self) -> &dyn Identifier {
         self
     }
 }
@@ -31,7 +31,7 @@ impl DisplayInfo for Structure {
         &'&'
     }
 
-    fn instance(&self) -> &dyn DisplayInfo {
+    fn displayinfo_instance(&self) -> &dyn DisplayInfo {
         self
     }
 }

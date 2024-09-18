@@ -1,13 +1,13 @@
 pub trait DisplayInfo {
     fn get_name(&self) -> &str {
-        &self.instance().get_name()
+        &self.displayinfo_instance().get_name()
     }
 
     fn get_icon(&self) -> &char {
-        &self.instance().get_icon()
+        &self.displayinfo_instance().get_icon()
     }
 
-    fn instance(&self) -> &dyn DisplayInfo;
+    fn displayinfo_instance(&self) -> &dyn DisplayInfo;
 }
 
 pub struct DisplayData {
@@ -24,7 +24,7 @@ impl DisplayInfo for DisplayData {
         &self.icon
     }
 
-    fn instance(&self) -> &dyn DisplayInfo {
+    fn displayinfo_instance(&self) -> &dyn DisplayInfo {
         self
     }
 }

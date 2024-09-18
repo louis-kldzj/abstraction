@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::{parse_macro_input, punctuated::Punctuated, Data, DeriveInput, Path, Token};
 
 pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
@@ -25,6 +25,7 @@ pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
     let struct_name = derive_input.ident;
     let traits = trait_paths.iter().map(|trait_path| {
         let trait_name = trait_path.get_ident().unwrap();
+        let fn_name = format_ident!("{}_instance", trait_name.to_string().to_lowercase());
         let data_field = &input_struct
             .fields
             .iter()
@@ -48,7 +49,7 @@ pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
 
         quote! {
             impl #trait_name for #struct_name {
-                fn instance(&self) -> &dyn #trait_name {
+                fn #fn_name(&self) -> &dyn #trait_name {
                     &self.#data_field
                 }
             }

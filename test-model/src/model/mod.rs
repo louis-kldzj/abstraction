@@ -10,9 +10,7 @@ mod player;
 mod space;
 
 pub trait GameObject: DisplayInfo + Identifier {
-    fn test(&self) -> &str {
-        "SUCCESS"
-    }
+    fn gameobject_instance(&self) -> &dyn GameObject;
 }
 
 #[derive(Abstract)]

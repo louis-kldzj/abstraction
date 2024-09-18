@@ -26,31 +26,30 @@ pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
     let traits = trait_paths.iter().map(|trait_path| {
         let trait_name = trait_path.get_ident().unwrap();
         let fn_name = format_ident!("{}_instance", trait_name.to_string().to_lowercase());
-        let data_field = &input_struct
-            .fields
-            .iter()
-            .find(|f| {
-                f.attrs.iter().any(|a| {
-                    a.path().is_ident("data_field")
-                        && a.parse_nested_meta(|m| {
-                            if m.path.is_ident(trait_name) {
-                                Ok(())
-                            } else {
-                                Err(m.error("AHH"))
-                            }
-                        })
-                        .is_ok()
-                })
+        let data_field = match &input_struct.fields.iter().find(|f| {
+            f.attrs.iter().any(|a| {
+                a.path().is_ident("data_field")
+                    && a.parse_nested_meta(|m| {
+                        if m.path.is_ident(trait_name) {
+                            Ok(())
+                        } else {
+                            Err(m.error("AHH"))
+                        }
+                    })
+                    .is_ok()
             })
-            .unwrap()
-            .ident
-            .clone()
-            .unwrap();
+        }) {
+            Some(f) => {
+                let field_name = f.ident.clone().unwrap();
+                quote! { &self.#field_name }
+            }
+            None => quote! { self },
+        };
 
         quote! {
             impl #trait_name for #struct_name {
                 fn #fn_name(&self) -> &dyn #trait_name {
-                    &self.#data_field
+                    #data_field
                 }
             }
         }

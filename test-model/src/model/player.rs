@@ -1,21 +1,16 @@
+use abstraction::Concrete;
+
 use super::{
     display::{DisplayData, DisplayInfo},
     identifier::{Identifier, Identity},
+    GameObject,
 };
 
+#[derive(Concrete)]
+#[concrete_traits(Identifier, DisplayInfo, GameObject)]
 pub struct Player {
+    #[data_field(Identifier)]
     identity: Identity,
+    #[data_field(DisplayInfo)]
     display_data: DisplayData,
-}
-
-impl Identifier for Player {
-    fn identifier_instance(&self) -> &dyn Identifier {
-        &self.identity
-    }
-}
-
-impl DisplayInfo for Player {
-    fn displayinfo_instance(&self) -> &dyn DisplayInfo {
-        &self.display_data
-    }
 }

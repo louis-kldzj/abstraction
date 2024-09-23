@@ -29,14 +29,11 @@ pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
         let data_field = match &input_struct.fields.iter().find(|f| {
             f.attrs.iter().any(|a| {
                 a.path().is_ident("data_field")
-                    && a.parse_nested_meta(|m| {
-                        if m.path.is_ident(trait_name) {
-                            Ok(())
-                        } else {
-                            Err(m.error("AHH"))
-                        }
-                    })
-                    .is_ok()
+                    && a.parse_args_with(Punctuated::<Path, Token![,]>::parse_terminated)
+                        .unwrap()
+                        .iter()
+                        .find(|m| if m.is_ident(trait_name) { true } else { false })
+                        .is_some()
             })
         }) {
             Some(f) => {

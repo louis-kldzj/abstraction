@@ -30,6 +30,7 @@ fn impl_abstraction_enum(enum_name: &Ident, enum_data: &DataEnum, trait_paths: V
 
         let trait_name = trait_path.get_ident().unwrap();
         let fn_name = format_ident!("{}_instance", trait_name.to_string().to_lowercase());
+        let fn_mut_name = format_ident!("{}_instance_mut", trait_name.to_string().to_lowercase());
 
         let variants = enum_data.variants.iter().map(|variant| {
             let name = &variant.ident;
@@ -47,6 +48,21 @@ fn impl_abstraction_enum(enum_name: &Ident, enum_data: &DataEnum, trait_paths: V
             }            
         });
 
+        let variants_mut = enum_data.variants.iter().map(|variant| {
+            let name = &variant.ident;
+            match &variant.fields {
+                Fields::Unnamed(fields_unnamed) if fields_unnamed.unnamed.len() == 1 => {
+                    quote! {
+                        Self::#name(inner) => (inner as &mut dyn #trait_name).#fn_mut_name(),
+                    }
+                }
+                _ => {
+                    quote! {
+                        _ => panic!("Cannot derive {} for variant {}", stringify!(#trait_path), stringify!(#name)),
+                    }
+                }
+            }            
+        });
 
         quote! {
 
@@ -54,6 +70,12 @@ fn impl_abstraction_enum(enum_name: &Ident, enum_data: &DataEnum, trait_paths: V
                 fn #fn_name(&self) -> &dyn #trait_name {
                     match self {
                         #(#variants)*
+                    }
+                }
+
+                fn #fn_mut_name(&mut self) -> &mut dyn #trait_name {
+                    match self {
+                        #(#variants_mut)*
                     }
                 }
             }

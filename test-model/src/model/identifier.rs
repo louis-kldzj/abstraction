@@ -4,6 +4,8 @@ pub trait Identifier {
     }
 
     fn identifier_instance(&self) -> &dyn Identifier;
+
+    fn identifier_instance_mut(&mut self) -> &mut dyn Identifier;
 }
 
 pub struct Identity {
@@ -16,6 +18,10 @@ impl Identifier for Identity {
     }
 
     fn identifier_instance(&self) -> &dyn Identifier {
+        self
+    }
+
+    fn identifier_instance_mut(&mut self) -> &mut dyn Identifier {
         self
     }
 }

@@ -8,6 +8,8 @@ pub trait DisplayInfo {
     }
 
     fn displayinfo_instance(&self) -> &dyn DisplayInfo;
+
+    fn displayinfo_instance_mut(&mut self) -> &mut dyn DisplayInfo;
 }
 
 pub struct DisplayData {
@@ -25,6 +27,10 @@ impl DisplayInfo for DisplayData {
     }
 
     fn displayinfo_instance(&self) -> &dyn DisplayInfo {
+        self
+    }
+
+    fn displayinfo_instance_mut(&mut self) -> &mut dyn DisplayInfo {
         self
     }
 }

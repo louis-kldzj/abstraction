@@ -26,7 +26,8 @@ pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
     let traits = trait_paths.iter().map(|trait_path| {
         let trait_name = trait_path.get_ident().unwrap();
         let fn_name = format_ident!("{}_instance", trait_name.to_string().to_lowercase());
-        let data_field = match &input_struct.fields.iter().find(|f| {
+        let fn_mut_name = format_ident!("{}_instance_mut", trait_name.to_string().to_lowercase());
+        let (data_field, data_field_mut) = match &input_struct.fields.iter().find(|f| {
             f.attrs.iter().any(|a| {
                 a.path().is_ident("data_field")
                     && a.parse_args_with(Punctuated::<Path, Token![,]>::parse_terminated)
@@ -38,15 +39,22 @@ pub fn impl_concrete_derive(input: TokenStream) -> TokenStream {
         }) {
             Some(f) => {
                 let field_name = f.ident.clone().unwrap();
-                quote! { &self.#field_name }
+                (
+                    quote! { &self.#field_name },
+                    quote! { &mut self.#field_name },
+                )
             }
-            None => quote! { self },
+            None => (quote! { self }, quote! {self }),
         };
 
         quote! {
             impl #trait_name for #struct_name {
                 fn #fn_name(&self) -> &dyn #trait_name {
                     #data_field
+                }
+
+                fn #fn_mut_name(&mut self) -> &mut dyn #trait_name {
+                    #data_field_mut
                 }
             }
         }

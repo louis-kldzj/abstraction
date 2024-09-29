@@ -20,6 +20,10 @@ impl Identifier for Structure {
     fn identifier_instance(&self) -> &dyn Identifier {
         self
     }
+
+    fn identifier_instance_mut(&mut self) -> &mut dyn Identifier {
+        self
+    }
 }
 
 impl DisplayInfo for Structure {
@@ -32,6 +36,10 @@ impl DisplayInfo for Structure {
     }
 
     fn displayinfo_instance(&self) -> &dyn DisplayInfo {
+        self
+    }
+
+    fn displayinfo_instance_mut(&mut self) -> &mut dyn DisplayInfo {
         self
     }
 }

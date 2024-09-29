@@ -11,6 +11,8 @@ mod space;
 
 pub trait GameObject: DisplayInfo + Identifier {
     fn gameobject_instance(&self) -> &dyn GameObject;
+
+    fn gameobject_instance_mut(&mut self) -> &mut dyn GameObject;
 }
 
 #[derive(Abstract)]
